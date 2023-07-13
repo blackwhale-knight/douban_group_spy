@@ -8,7 +8,9 @@ import time
 from datetime import datetime
 from datetime import date
 from itertools import cycle
+
 from bs4 import BeautifulSoup
+import concurrent.futures
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import make_aware
@@ -62,13 +64,16 @@ def process_posts(posts, group, keywords, exclude):
             if re.search(k_pattern, t['title']) or re.search(k_pattern, t['content']):
                 keyword_list.append(k)
                 is_matched = True
+            for comment in t['comments']:
+                if re.search(k_pattern, comment):
+                    keyword_list.append(k)
+                    is_matched = True
 
         post = Post(
             post_id=t['id'], group=group,
             author_info=t['author'], alt=t['alt'],
-            title=t['title'], content=t['content'],
+            title=t['title'], content=t['content'], comments=t['comments'],
             photo_list=t['photos'],
-            # rent=0.0, subway='', contact='',
             is_matched=is_matched, keyword_list=keyword_list,
             created=make_aware(datetime.strptime(t['created'], DATETIME_FORMAT)),
             updated=make_aware(datetime.strptime(t['updated'], DATETIME_FORMAT))
@@ -144,6 +149,11 @@ def crawl(group_id, pages, keywords, exclude):
             # 以下部分可能出错，增加try/except
             try:
                 post_content=post_detail.select_one('div[class="topic-content"]')
+                post_comments=post_detail.find_all("p", class_='reply-content')
+                comments=[]
+                for comment in post_comments:
+                    comments.append(comment.get_text())
+                lg.debug(comments)
                 post_photos=[]
                 for photo_row in post_content.select('img'):
                     post_photos.append(photo_row['src'])
@@ -154,12 +164,13 @@ def crawl(group_id, pages, keywords, exclude):
             result['id']=int(re.findall(r"https://www.douban.com/group/topic/(.+?)/",link_href)[0])
             result['title']=link["title"]
             result['content']=post_content.get_text().strip()
+            result['comments']=comments
             result['alt']=link_href
             author_link=row.select("td")[1].select_one('a')
             result['author']={'name':author_link.get_text(),'alt':author_link["href"]}
             result['photos']=post_photos
             result['created']=post_detail.select_one('.create-time').get_text()
-            result['updated']=f'{date.today().year}-{row.select("td")[3].get_text()}:00'
+            result['updated']=post_detail.select_one('.create-time').get_text()
             posts.append(result)
         process_posts(posts, group, keywords, exclude)
     

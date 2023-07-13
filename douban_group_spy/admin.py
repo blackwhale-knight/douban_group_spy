@@ -43,6 +43,7 @@ class PostAdmin(ModelAdmin):
         'show_alt',
         'is_matched',
         'keyword_list',
+        'comments',
         'comment',
         'created',
         'updated'
@@ -57,9 +58,7 @@ class PostAdmin(ModelAdmin):
         'is_matched',
         'is_collected',
         'keyword_list',
-        'rent',
-        'subway',
-        'contact',
+        'comments',
         'content',
         'created',
         'updated',

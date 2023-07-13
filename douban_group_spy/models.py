@@ -34,12 +34,9 @@ class Post(Model):
     content = TextField()
     photo_list = JSONField(default=[], dump_kwargs={'ensure_ascii': False})
 
-    rent = FloatField(null=True)
-    subway = CharField(max_length=12, null=True)
-    contact = CharField(max_length=68, null=True)
-
     is_matched = BooleanField(default=False)
     keyword_list = JSONField(default=[], dump_kwargs={'ensure_ascii': False})
+    comments = JSONField(default=[], dump_kwargs={'ensure_ascii': False})
 
     comment = CharField(max_length=128, null=True, blank=True)
     is_collected = BooleanField(default=False)
