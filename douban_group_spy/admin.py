@@ -44,12 +44,12 @@ class PostAdmin(ModelAdmin):
         'is_matched',
         'keyword_list',
         'comments',
-        'comment',
+        'content',
         'created',
         'updated'
     )
     list_filter = ('group__name', 'is_matched', 'is_collected', KeywordFilter)
-    search_fields = ('title', 'content')
+    search_fields = ('title', 'content', 'comments')
     fields = (
         'post_id',
         'group',

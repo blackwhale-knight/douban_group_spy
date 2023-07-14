@@ -6,11 +6,8 @@ import re
 import random
 import time
 from datetime import datetime
-from datetime import date
-from itertools import cycle
 
 from bs4 import BeautifulSoup
-import concurrent.futures
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import make_aware
