@@ -54,25 +54,27 @@ def process_posts(posts, group, keywords, exclude):
             lg.info(f'[post] ignore same title...')
             continue
 
-        keyword_list = []
+        keyword_set = set()
+        comments_list = []
         is_matched = False
         for k in keywords:
             k_pattern = '.?'.join([i for i in k])
             if re.search(k_pattern, t['title']) or re.search(k_pattern, t['content']):
-                keyword_list.append(k)
+                keyword_set.add(k)
                 is_matched = True
             for comment in t['comments']:
                 if re.search(k_pattern, comment):
-                    keyword_list.append(k)
+                    keyword_set.add(k)
+                    comments_list.append(comment)
                     is_matched = True
         
         if is_matched:
             post = Post(
                 post_id=t['id'], group=group,
                 author_info=t['author'], alt=t['alt'],
-                title=t['title'], content=t['content'], comments=t['comments'],
+                title=t['title'], content=t['content'], comments=comments_list,
                 photo_list=t['photos'],
-                is_matched=is_matched, keyword_list=keyword_list,
+                is_matched=is_matched, keyword_list=list(keyword_set),
                 created=make_aware(datetime.strptime(t['created'], DATETIME_FORMAT)),
                 updated=make_aware(datetime.strptime(t['updated'], DATETIME_FORMAT))
             )
