@@ -68,21 +68,22 @@ def process_posts(posts, group, keywords, exclude):
                 if re.search(k_pattern, comment):
                     keyword_list.append(k)
                     is_matched = True
+        
+        if is_matched:
+            post = Post(
+                post_id=t['id'], group=group,
+                author_info=t['author'], alt=t['alt'],
+                title=t['title'], content=t['content'], comments=t['comments'],
+                photo_list=t['photos'],
+                is_matched=is_matched, keyword_list=keyword_list,
+                created=make_aware(datetime.strptime(t['created'], DATETIME_FORMAT)),
+                updated=make_aware(datetime.strptime(t['updated'], DATETIME_FORMAT))
+            )
+            post.save(force_insert=True)
+            lg.info(f'[post] save post: {post.post_id}')
 
-        post = Post(
-            post_id=t['id'], group=group,
-            author_info=t['author'], alt=t['alt'],
-            title=t['title'], content=t['content'], comments=t['comments'],
-            photo_list=t['photos'],
-            is_matched=is_matched, keyword_list=keyword_list,
-            created=make_aware(datetime.strptime(t['created'], DATETIME_FORMAT)),
-            updated=make_aware(datetime.strptime(t['updated'], DATETIME_FORMAT))
-        )
-        post.save(force_insert=True)
-        lg.info(f'[post] save post: {post.post_id}')
 
-
-def crawl(group_id, pages, keywords, exclude):
+def crawl(group_id, pages, keywords, exclude, offset):
     lg.info(f'start crawling group: {group_id}')
     try:
         group = Group.objects.get(id=group_id)
@@ -115,7 +116,7 @@ def crawl(group_id, pages, keywords, exclude):
         # host = next(douban_base_host)
         kwargs = {
             'url': GROUP_TOPICS_BASE_URL.format(DOUBAN_BASE_HOST, group_id),
-            'params': {'start': p*25},
+            'params': {'start': offset + p*25},
             'headers': {'User-Agent': USER_AGENT,'Cookie': COOKIE}
         }
         req = getattr(requests, 'get')(**kwargs)
@@ -182,14 +183,15 @@ def crawl(group_id, pages, keywords, exclude):
 @click.option('--sleep', help='time sleep', default=60 * 15)
 @click.option('--pages', help='crawl page range', default=10)
 @click.option('-v', help='Show debug info', is_flag=True)
-def main(groups: tuple, keywords: tuple, exclude: tuple, sleep, pages, v):
+@click.option('--offset', help='offset', default=0)
+def main(groups: tuple, keywords: tuple, exclude: tuple, sleep, pages, v, offset):
     if v:
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     else:
         logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     while True:
         for g_id in groups:
-            crawl(g_id, pages, keywords, exclude)
+            crawl(g_id, pages, keywords, exclude, offset)
         lg.info('Sleeping...')
         time.sleep(sleep)
 
