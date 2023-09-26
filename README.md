@@ -19,7 +19,7 @@
 2. 安装依赖 `pip install -r requirements.txt`
 3. 数据库初始化 `make migrate`
 4. 修改配置，由于豆瓣的限制，你需要设置 Cookie 后才能开始爬取。在网页上登录豆瓣，将 `douban_group_spy/settings.py` 中的 `COOKIE` 配置修改为你的 Cookie (cookie key 为 `dbcl2`)
-5. 运行爬虫 eg: `python crawler_main.py -g 106955 -g baoanzufang -k 灵芝 -k 翻身 -e 求租`
+5. 运行爬虫 eg: `python3 crawler_main.py -g 709841 -g 708206 -k 恩瑾 -e 巨茹 --pages 100`
 6. 运行网页 `make run_server`, 默认账号密码均为 admin
 
 ### 爬虫参数
@@ -36,8 +36,10 @@
 ## ps
 
 ### 推荐小组：
-- 708206: 啊这
-- 709841: 塞纳河涩啤小组
+- 708206：啊这
+- 709841：塞纳河涩啤小组
+- 666402：河勿糊组 
+- GNZ48：这河里吗 
 
 ### Screenshots
 文章列表
