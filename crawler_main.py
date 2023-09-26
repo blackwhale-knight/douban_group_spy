@@ -49,10 +49,6 @@ def process_posts(posts, group, keywords, exclude):
             post.title = t['title']
             post.save(force_update=['updated', 'title'])
             continue
-        # ignore same title
-        if Post.objects.filter(title=t['title']).exists():
-            lg.info(f'[post] ignore same title...')
-            continue
 
         keyword_set = set()
         comments_list = []
@@ -72,7 +68,7 @@ def process_posts(posts, group, keywords, exclude):
             post = Post(
                 post_id=t['id'], group=group,
                 author_info=t['author'], alt=t['alt'],
-                title=t['title'], content=t['content'], comments=comments_list,
+                title=t['title'], content=t['content'], comments=t['comments'],
                 photo_list=t['photos'],
                 is_matched=is_matched, keyword_list=list(keyword_set),
                 created=make_aware(datetime.strptime(t['created'], DATETIME_FORMAT)),
