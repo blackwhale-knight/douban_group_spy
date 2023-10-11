@@ -124,5 +124,6 @@ DOUBAN_BASE_HOST = 'https://www.douban.com'
 
 GROUP_TOPICS_BASE_URL = '{}/group/{}/discussion'
 GROUP_INFO_BASE_URL = '{}/group/{}/'
+DOU_LIST_BASE_URL = '{}/doulist/{}/'
 
-COOKIE='dbcl2="243225451:Ri6KaxiOOOs"'
+COOKIE='dbcl2="243225451:sPhMgV/XgMI"'

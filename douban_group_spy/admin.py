@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from douban_group_spy.const import HREF_FORMAT, IMG_FORMAT
-from douban_group_spy.models import Post, Group
+from douban_group_spy.models import Post, Group, DoulistPost, Doulist
 
 
 def get_model_fields(model, exclude=None):
@@ -32,6 +32,49 @@ class KeywordFilter(SimpleListFilter):
             qs = queryset.filter(keyword_list=json.loads(self.value()))
             return qs
         return queryset
+
+@admin.register(Doulist)
+class DoulistAdmin(ModelAdmin):
+    list_display = ('id', 'name', 'show_alt')
+
+    def show_alt(self, obj):
+        return format_html(HREF_FORMAT, url=obj.alt)
+    show_alt.short_description = 'Alt'
+
+@admin.register(DoulistPost)
+class DoulistPostAdmin(ModelAdmin):
+    list_display = (
+        'post_id',
+        'title',
+        'show_alt',
+        'comments',
+        'content',
+        'created',
+        'updated'
+    )
+    fields = (
+        'post_id',
+        'title',
+        'show_alt',
+        'comments',
+        'content',
+        'created',
+        'updated',
+        'created_at'
+    )
+    ordering = ('created', 'updated')
+
+    def show_alt(self, obj):
+        return mark_safe(format_html(HREF_FORMAT, url=obj.alt))
+    show_alt.short_description = 'Alt'
+    show_alt.allow_tags = True
+
+    def photos(self, obj):
+        result = ''
+        for i in obj.photo_list:
+            result += IMG_FORMAT.format(url=i)
+        return mark_safe(result)
+    photos.allow_tags = True
 
 
 @admin.register(Post)
