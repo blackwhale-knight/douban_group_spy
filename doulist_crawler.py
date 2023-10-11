@@ -31,12 +31,16 @@ lg = logging.getLogger(__name__)
 
 def process_doulist_posts(posts):
     for t in posts:
+
         post = DoulistPost.objects.filter(post_id=t['id']).first()
         # ignore same id
         if post:
             lg.info(f'[post] update existing post: {post.post_id}')
             post.updated = make_aware(datetime.strptime(t['updated'], DATETIME_FORMAT))
             post.title = t['title']
+            post.comments = t['content']
+            post.photo_list = t['photos']
+            post.comment_photo_list = t['cmt-photos']
             post.save(force_update=['updated', 'title'])
             continue
         post = DoulistPost(
@@ -44,6 +48,7 @@ def process_doulist_posts(posts):
             alt=t['alt'],
             title=t['title'], content=t['content'], comments=t['comments'],
             photo_list=t['photos'],
+            comment_photo_list=t['cmt-photos'],
             created=make_aware(datetime.strptime(t['created'], DATETIME_FORMAT)),
             updated=make_aware(datetime.strptime(t['updated'], DATETIME_FORMAT))
         )
@@ -117,12 +122,17 @@ def crawl(doulist_id):
             try:
                 post_content=post_detail.select_one('div[class="topic-content"]')
                 post_comments=post_detail.find_all("p", class_='reply-content')
+                cmt_photos=post_detail.find_all("div", class_='cmt-img')
+                # lg.info(comment_photos)
                 comments=[]
                 for comment in post_comments:
                     comments.append(comment.get_text())
                 post_photos=[]
                 for photo_row in post_content.select('img'):
                     post_photos.append(photo_row['src'])  
+                comment_photos=[]
+                for comment_photo in cmt_photos:
+                    comment_photos.append(comment_photo.find('img')['src'])
             except:
                 continue
    
@@ -133,6 +143,7 @@ def crawl(doulist_id):
             result['comments']=comments
             result['alt']=link_href
             result['photos']=post_photos
+            result['cmt-photos']=comment_photos
             result['created']=post_detail.select_one('.create-time').get_text()
             result['updated']=post_detail.select_one('.create-time').get_text()
 
@@ -148,9 +159,8 @@ def main(doulists: tuple, v):
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     else:
         logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    while True:
-        for dl_id in doulists:
-            crawl(dl_id)
+    for dl_id in doulists:
+        crawl(dl_id)
 
 
 if __name__ == '__main__':

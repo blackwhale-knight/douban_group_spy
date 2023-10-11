@@ -49,15 +49,20 @@ class DoulistPostAdmin(ModelAdmin):
         'show_alt',
         'comments',
         'content',
+        'photos',
+        'comment_photos',
         'created',
         'updated'
     )
+    search_fields = ('title', 'content', 'comments', 'post_id')
     fields = (
         'post_id',
         'title',
         'show_alt',
         'comments',
         'content',
+        'photos',
+        'comment_photos',
         'created',
         'updated',
         'created_at'
@@ -72,6 +77,11 @@ class DoulistPostAdmin(ModelAdmin):
     def photos(self, obj):
         result = ''
         for i in obj.photo_list:
+            result += IMG_FORMAT.format(url=i)
+        return mark_safe(result)
+    def comment_photos(self, obj):
+        result = ''
+        for i in obj.comment_photo_list:
             result += IMG_FORMAT.format(url=i)
         return mark_safe(result)
     photos.allow_tags = True

@@ -76,6 +76,7 @@ class DoulistPost(Model):
     title = CharField(max_length=128)
     content = TextField()
     photo_list = JSONField(default=[], dump_kwargs={'ensure_ascii': False})
+    comment_photo_list = JSONField(default=[], dump_kwargs={'ensure_ascii': False})
 
     comments = JSONField(default=[], dump_kwargs={'ensure_ascii': False})
 
@@ -90,5 +91,6 @@ class DoulistPost(Model):
              update_fields=None):
         self.alt = self.alt.replace('\\', '')
         self.photo_list = [i.replace('\\', '') for i in self.photo_list]
+        self.comment_photo_list = [i.replace('\\', '') for i in self.comment_photo_list]
         super().save(force_insert=False, force_update=False, using=None,
                      update_fields=None)
