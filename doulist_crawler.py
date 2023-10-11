@@ -83,9 +83,8 @@ def crawl(doulist_id):
         if req.status_code != 200:
             lg.warning(f'Fail to getting: {req.url}, status: {req.status_code}')
 
-    soup = BeautifulSoup(req.text,'lxml')
-
-    pages=int(soup.find('span', {'class' : 'thispage'}).get('data-total-page'))
+    dl_info = BeautifulSoup(req.text,'lxml')
+    pages=int(dl_info.find('span', {'class' : 'thispage'}).get('data-total-page'))
 
     for p in range(pages):
         time.sleep(random.randint(5,8))
@@ -107,7 +106,8 @@ def crawl(doulist_id):
             if req.status_code != 200:
                 lg.warning(f'Fail to getting: {req.url}, status: {req.status_code}')
                 continue
-
+                
+        soup = BeautifulSoup(req.text,'lxml')        
         posts=[]
         for row in soup.find_all("div", {"class": "bd doulist-note"}):
             link=row.select_one('div[class="title"] a')
